@@ -4,7 +4,7 @@ class Particle:
     def __init__(self, dim, bounds):
         # Початкова позиція в межах області пошуку
         self.position = np.random.uniform(bounds[:, 0], bounds[:, 1], dim)
-        # Початкова швидкість – випадкове значення
+        # Початкова швидкість
         self.velocity = np.random.uniform(-1, 1, dim)
         self.best_position = self.position.copy()
         self.best_value = float('inf')

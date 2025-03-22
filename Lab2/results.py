@@ -7,9 +7,7 @@ def run_experiment(func, bounds, expected, description, output_dir,
                    w_max=0.9, w_min=0.4, c1=1.0, c2=2.5,
                    random_limits=None, break_faster=False, epsilon=1e-6, cnt_max=3,
                    clamp_velocity=1.0):
-    """
-    Запуск алгоритму PSO з заданими параметрами і збереження результатів.
-    """
+    
     optimizer = PSO(
         func, bounds,
         swarm_size=swarm_size,
@@ -34,9 +32,8 @@ def run_experiment(func, bounds, expected, description, output_dir,
     conv_filename = os.path.join(output_dir, f"convergence_{description.replace(' ', '_')}.png")
     gif_filename = os.path.join(output_dir, f"animation_{description.replace(' ', '_')}.gif")
 
-    # Побудова графіка конвергенції
     plot_convergence(conv_history, f"Конвергенція - {description}", conv_filename)
-    # Створення 3D-анімації
+
     animate_3d(func, bounds, pos_history, conv_history, f"PSO - {description}", gif_filename)
 
     print(f"  Збережено графік: {conv_filename}")

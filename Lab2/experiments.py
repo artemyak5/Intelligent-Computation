@@ -60,9 +60,8 @@ def compare_population_sizes(func, bounds, population_sizes, description, output
                              w_max=0.9, w_min=0.4, c1=1.0, c2=2.5,
                              random_limits=None, break_faster=False, epsilon=1e-6, cnt_max=3,
                              clamp_velocity=1.0):
-    """
-    Порівнює різні розміри популяції для однієї функції.
-    """
+    
+    #Порівнює різні розміри популяції для однієї функції.
     convergence_curves = []
     labels = []
     for pop_size in population_sizes:
@@ -104,9 +103,9 @@ def compare_population_sizes_for_functions(functions, bounds_list, population_si
                                            w_max=0.9, w_min=0.4, c1=1.0, c2=2.5,
                                            random_limits=None, break_faster=False, epsilon=1e-6, cnt_max=3,
                                            clamp_velocity=1.0):
-    """
-    Для кожної функції будує окремий графік, порівнюючи різні розміри популяції.
-    """
+    
+    #Для кожної функції будує окремий графік, порівнюючи різні розміри популяції.
+
     for func, bounds, pop_sizes, desc in zip(functions, bounds_list, population_sizes_list, descriptions):
         compare_population_sizes(
             func=func,

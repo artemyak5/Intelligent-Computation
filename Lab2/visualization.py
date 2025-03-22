@@ -17,7 +17,6 @@ def plot_convergence(conv_history, title, filename):
 def animate_3d(func, bounds, pos_history, conv_history, title, gif_filename):
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
-    # Створення сітки для побудови поверхні функції
     x_vals = np.linspace(bounds[0, 0], bounds[0, 1], 100)
     y_vals = np.linspace(bounds[1, 0], bounds[1, 1], 100)
     X, Y = np.meshgrid(x_vals, y_vals)

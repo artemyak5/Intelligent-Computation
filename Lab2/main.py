@@ -3,11 +3,9 @@ import numpy as np
 from results import run_experiment
 from experiments import compare_experiments, compare_population_sizes_for_functions
 
-# Створення директорії для збереження результатів
 output_dir = "result"
 os.makedirs(output_dir, exist_ok=True)
 
-# --- Визначення тестових функцій ---
 def ackley(x):
     a, b, c = 20, 0.2, 2 * np.pi
     d = len(x)
@@ -37,16 +35,16 @@ bounds_holder = np.array([[-10, 10], [-10, 10]])
 bounds_mccormick = np.array([[-1.5, 4], [-3, 4]])
 bounds_styblinski = np.array([[-5, 5], [-5, 5]])
 
-# Приклад параметрів, що сприяють швидшому "скупченню" рою:
+
 iterations = 100
 w_max = 0.9   # початкове w
 w_min = 0.4   # кінцеве w (щоб до кінця ітерацій рій сильно "стиснувся")
 c1 = 1.0      # помірний когнітивний вплив
 c2 = 2.5      # посилений соціальний вплив
-clamp_velocity = 1.0  # обмежує швидкість у межах [-1.0, 1.0] для кожної компоненти
-random_limits = None  # якщо хочемо використовувати фіксовані c1, c2
+clamp_velocity = 1.0  
+random_limits = None  
 
-# --- Запуск експериментів для кожної функції ---
+
 run_experiment(
     ackley, bounds_ackley, 0, "Ackley Function", output_dir,
     swarm_size=50, iterations=iterations,
