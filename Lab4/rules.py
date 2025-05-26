@@ -1,10 +1,18 @@
 from skfuzzy import control as ctrl
-import skfuzzy as fuzz
+
+def adjust_time(base, temp_term):
+    order = ['short', 'normal', 'long']
+    idx = order.index(base)
+    if temp_term == 'cold' and idx < len(order)-1:
+        return order[idx+1]
+    if temp_term == 'warm' and idx > 0:
+        return order[idx-1]
+    return base
 
 def build_rules(ctrl_obj):
     rules = []
 
-    # Режим rice
+    # rice rules
     rules.append(ctrl.Rule(
         ctrl_obj.dish['rice'] & ctrl_obj.volume['small'] & ctrl_obj.ratio['low'],
         ctrl_obj.cook_time['short']
@@ -17,13 +25,18 @@ def build_rules(ctrl_obj):
         ctrl_obj.dish['rice'] & ctrl_obj.volume['large'] & ctrl_obj.ratio['high'],
         ctrl_obj.cook_time['long']
     ))
-    # Default cook_temp for rice
-    rules.append(ctrl.Rule(
-        ctrl_obj.dish['rice'],
-        ctrl_obj.cook_temp['medium']
-    ))
+    # default rice temperature and time
+    rules.append(ctrl.Rule(ctrl_obj.dish['rice'], ctrl_obj.cook_temp['medium']))
+    rules.append(ctrl.Rule(ctrl_obj.dish['rice'], ctrl_obj.cook_time['normal']))
+    # Adjust rice cook_time for cold/warm start
+    for temp in ['cold', 'warm']:
+        adj = adjust_time('normal', temp)
+        rules.append(ctrl.Rule(
+            ctrl_obj.dish['rice'] & ctrl_obj.temp_in[temp],
+            ctrl_obj.cook_time[adj]
+        ))
 
-    # Режим soup
+    # soup rules
     rules.append(ctrl.Rule(
         ctrl_obj.dish['soup'] & ctrl_obj.volume['small'],
         ctrl_obj.cook_time['short']
@@ -44,8 +57,9 @@ def build_rules(ctrl_obj):
         ctrl_obj.dish['soup'] & ctrl_obj.ratio['low'],
         ctrl_obj.cook_temp['high']
     ))
+    rules.append(ctrl.Rule(ctrl_obj.dish['soup'], ctrl_obj.cook_time['normal']))
 
-    # Режим porridge
+    # porridge rules
     rules.append(ctrl.Rule(
         ctrl_obj.dish['porridge'] & ctrl_obj.ratio['medium'],
         ctrl_obj.cook_time['normal']
@@ -62,13 +76,10 @@ def build_rules(ctrl_obj):
         ctrl_obj.dish['porridge'] & ctrl_obj.temp_in['cold'],
         ctrl_obj.cook_time['long']
     ))
-    # Default cook_temp for porridge
-    rules.append(ctrl.Rule(
-        ctrl_obj.dish['porridge'],
-        ctrl_obj.cook_temp['medium']
-    ))
+    rules.append(ctrl.Rule(ctrl_obj.dish['porridge'], ctrl_obj.cook_temp['medium']))
+    rules.append(ctrl.Rule(ctrl_obj.dish['porridge'], ctrl_obj.cook_time['normal']))
 
-    # Режим stew
+    # stew rules
     rules.append(ctrl.Rule(
         ctrl_obj.dish['stew'] & ctrl_obj.volume['large'],
         ctrl_obj.cook_time['long']
@@ -85,13 +96,10 @@ def build_rules(ctrl_obj):
         ctrl_obj.dish['stew'] & ctrl_obj.temp_in['warm'],
         ctrl_obj.cook_time['normal']
     ))
-    # Default cook_temp for stew
-    rules.append(ctrl.Rule(
-        ctrl_obj.dish['stew'],
-        ctrl_obj.cook_temp['medium']
-    ))
+    rules.append(ctrl.Rule(ctrl_obj.dish['stew'], ctrl_obj.cook_temp['medium']))
+    rules.append(ctrl.Rule(ctrl_obj.dish['stew'], ctrl_obj.cook_time['normal']))
 
-    # Режим steam
+    # steam rules
     rules.append(ctrl.Rule(
         ctrl_obj.dish['steam'],
         ctrl_obj.cook_temp['high']
@@ -105,7 +113,7 @@ def build_rules(ctrl_obj):
         ctrl_obj.cook_time['normal']
     ))
 
-    # Режим keep_warm
+    # keep_warm rules
     rules.append(ctrl.Rule(
         ctrl_obj.dish['keep_warm'],
         ctrl_obj.cook_temp['low']
@@ -115,13 +123,13 @@ def build_rules(ctrl_obj):
         ctrl_obj.cook_time['short']
     ))
 
-    # Режим bake
+    # bake rules
     rules.append(ctrl.Rule(
         ctrl_obj.dish['bake'],
         ctrl_obj.cook_temp['high']
     ))
     rules.append(ctrl.Rule(
-        ctrl_obj.dish['bake'] & ctrl_obj.volume['small'],
+        ctrl_obj.dish['bake'],
         ctrl_obj.cook_time['normal']
     ))
     rules.append(ctrl.Rule(
@@ -129,13 +137,13 @@ def build_rules(ctrl_obj):
         ctrl_obj.cook_time['long']
     ))
 
-    # Режим yogurt
+    # yogurt rules
     rules.append(ctrl.Rule(
         ctrl_obj.dish['yogurt'],
         ctrl_obj.cook_temp['low']
     ))
     rules.append(ctrl.Rule(
-        ctrl_obj.dish['yogurt'] & ctrl_obj.temp_in['warm'],
+        ctrl_obj.dish['yogurt'],
         ctrl_obj.cook_time['normal']
     ))
     rules.append(ctrl.Rule(
@@ -143,13 +151,13 @@ def build_rules(ctrl_obj):
         ctrl_obj.cook_time['long']
     ))
 
-    # Режим reheat
+    # reheat rules
     rules.append(ctrl.Rule(
         ctrl_obj.dish['reheat'],
         ctrl_obj.cook_temp['medium']
     ))
     rules.append(ctrl.Rule(
-        ctrl_obj.dish['reheat'] & ctrl_obj.temp_in['cold'],
+        ctrl_obj.dish['reheat'],
         ctrl_obj.cook_time['normal']
     ))
     rules.append(ctrl.Rule(
@@ -157,7 +165,7 @@ def build_rules(ctrl_obj):
         ctrl_obj.cook_time['short']
     ))
 
-    # Режим sterilization
+    # sterilization rules
     rules.append(ctrl.Rule(
         ctrl_obj.dish['sterilization'],
         ctrl_obj.cook_temp['medium']
@@ -166,19 +174,12 @@ def build_rules(ctrl_obj):
         ctrl_obj.dish['sterilization'],
         ctrl_obj.cook_time['long']
     ))
-
-        # Default cook_time for static modes bake, yogurt, reheat
-    rules.append(ctrl.Rule(
-        ctrl_obj.dish['bake'],
-        ctrl_obj.cook_time['normal']
-    ))
-    rules.append(ctrl.Rule(
-        ctrl_obj.dish['yogurt'],
-        ctrl_obj.cook_time['normal']
-    ))
-    rules.append(ctrl.Rule(
-        ctrl_obj.dish['reheat'],
-        ctrl_obj.cook_time['normal']
-    ))
+    # Adjust sterilization cook_time for cold/warm start
+    for temp in ['cold', 'warm']:
+        adj = adjust_time('long', temp)
+        rules.append(ctrl.Rule(
+            ctrl_obj.dish['sterilization'] & ctrl_obj.temp_in[temp],
+            ctrl_obj.cook_time[adj]
+        ))
 
     return rules
